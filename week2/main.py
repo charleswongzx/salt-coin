@@ -1,4 +1,6 @@
 from ecdsa import SigningKey, NIST192p
+from pprint import pprint
+import time
 
 from blockchain import Blockchain
 from block import Block
@@ -28,8 +30,9 @@ def demo():
 
     for i in range (10):
         salt_coin.add_block(block1)
+        time.sleep(0.2)
 
-    print(salt_coin.chain)
+    pprint(salt_coin.chain)
 
 
 if __name__ == '__main__':
