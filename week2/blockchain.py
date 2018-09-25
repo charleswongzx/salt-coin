@@ -99,7 +99,6 @@ class Block(object):
         """
         num_leaves = len(past_transactions)
         remaining_nodes = num_leaves
-
         generated_tree = []
 
         # Generate hashes for bottom layer
@@ -107,7 +106,6 @@ class Block(object):
         for transaction in past_transactions:
             new_hash = hashlib.sha256(transaction.to_json().encode('utf-8')).hexdigest()
             leaf_hashes.append(new_hash)
-
         generated_tree.append(leaf_hashes)
         active_level = leaf_hashes
 
@@ -116,7 +114,6 @@ class Block(object):
                 odd = False
             else:
                 odd = True
-
             new_tier = []
             for i in range(1, remaining_nodes, 2):
                 combined_str = str(active_level[i-1]) + str(active_level[i])
@@ -133,7 +130,6 @@ class Block(object):
         if verbose:
             print('Tree build complete!\n' + 'No. of levels:', len(generated_tree))
             print(generated_tree)
-
         return generated_tree
 
     def to_json(self):
@@ -166,6 +162,11 @@ class Block(object):
         """Generate pseudorandom number."""
         return str(random.randint(0, 100000000))
 
+class Blockchain:
+    def __init__(self):
+        self.chain = OrderedDict()
+        self.create_genesis('yo mommas house')
+        self.previous_hash = ''
 
 
 sender_private = SigningKey.generate(curve=NIST192p)
