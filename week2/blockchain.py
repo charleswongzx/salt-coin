@@ -77,10 +77,6 @@ class Block(object):
 
         # Generated hash
         self.hash = None  # Generated when inserted into chain
-        # self.hash = self.generate_hash()  # to be generated upon adding to blockchain
-
-    # def add_transaction(self, transaction):
-    #     self.past_transactions.append(transaction)
 
     def build_tree(self, past_transactions, verbose):
         """
@@ -183,9 +179,9 @@ class Blockchain:
 
     def add_block(self, block, target_block_hash=None):
         """
-        Assigns block a timestamp and index and adds to chain
-        :param block: Block() object to be added
-        :param target_block_hash: Used to assign block to another fork. Defaults to None for last used chain
+        Assigns block a timestamp, index, previous_hash and adds to chain.
+        :param block: Block() object to be added.
+        :param target_block_hash: Used to assign block to another fork. Defaults to None for last added block.
         :return:
         """
         block.timestamp = time.time()
