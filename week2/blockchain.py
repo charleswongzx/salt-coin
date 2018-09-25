@@ -1,13 +1,10 @@
-from ecdsa import SigningKey, NIST192p, VerifyingKey
 from collections import OrderedDict
+from ecdsa import SigningKey, NIST192p, VerifyingKey
 
-import json
-import random
-import time
-import hashlib
+import json, time, random, hashlib
 
 
-class Transaction:
+class Transaction(object):
 
     def __init__(self, sender_public_key, receiver_public_key, amount, comment=''):
         self.sender_public_key = sender_public_key
@@ -17,12 +14,12 @@ class Transaction:
         self.signature = ''
 
     def to_json(self):
-        obj_dict = OrderedDict({'sender': self.sender_public_key,
-                                'receiver': self.receiver_public_key,
+        obj_dict = OrderedDict({'sender_public_key': self.sender_public_key,
+                                'receiver_public_key': self.receiver_public_key,
                                 'amount': self.amount,
                                 'comment': self.comment})
 
-        json_obj = json.dumps(obj_dict)
+        json_obj = json.dumps(obj_dict, sort_keys=True)
 
         return json_obj
 
@@ -33,47 +30,86 @@ class Transaction:
 
     def sign(self, json_obj, private_key_string):
         sk = SigningKey.from_string(private_key_string, curve=NIST192p)
-        signature = sk.sign(json_obj)
+        signature = sk.sign(json_obj.encode('utf-8'))
         self.signature = signature
+        return signature
 
     @staticmethod
     def validate(json_obj, signature, sender_public_key):
         vk = VerifyingKey.from_string(sender_public_key)
-        return vk.verify(signature, json_obj)
+        return vk.verify(signature, json_obj.encode('utf-8'))
 
     def __eq__(self, other):
         # sign and compare? compare attributes one by one?
         return None
 
 
-class Block():
+# sender_private = SigningKey.generate(curve=NIST192p)
+# sender_public = sender_private.get_verifying_key()
+#
+#
+# new = Transaction(sender_public.to_string().hex(), 'rofl', '50')
+# test = new.to_json()
+# sig = new.sign(test, sender_private.to_string())
+# valid = Transaction.validate(test, sig, sender_public.to_string())
+# print(valid)
 
-    def __init__(self):
-        self.past_transactions = []
-        self.past_transaction_hashes = []
-        self.tiered_node_list = []
-        self.root = None
+
+class Block(object):
+
+    # TODO: implement merkle generation, store root in self.root
+    # header: previous_hash, index, merkle root, timestamp, nonce, block number, version
+    # content: past transactions
+    # self.hash is hash of the header
+
+    def __init__(self, index, previous_hash, past_transactions, verbose=False):
+        """
+        Initialisation of block
+        :param index: designated block number decided by order in which block is inserted into blockchain
+        :param previous_hash: hash of previous block in chain
+        :param past_transactions: list of transaction instances using Transaction() class
+        """
+        if verbose:
+            print('Creating new block...')
+
+        # Header
+        self.version = '0.1-pre-alpha'
+        self.index = index
+        self.previous_hash = previous_hash
         self.timestamp = time.time()
+        self.merkle_root = None  # Assigned during build_tree() step
         self.nonce = self.make_nonce()
-        self.block_number = None
-        self.previous = None
 
-    def add(self, new_transaction):
-        new_hash_hex_digest = hashlib.sha512(new_transaction).hexdigest()
-        self.past_transactions.append(new_transaction)
-        self.past_transaction_hashes.append(new_hash_hex_digest)
-        print('Added new transaction with hex digest:', new_hash_hex_digest)
+        # Content
+        self.past_transactions_tree = self.build_tree(past_transactions, verbose)  # Stored as a list
 
-    @staticmethod
-    def make_nonce():
-        """Generate pseudorandom number."""
-        return str(random.randint(0, 100000000))
+        # Generated hash
+        self.hash = self.generate_hash()  # to be generated upon adding to blockchain
 
-    def build(self):
-        # Build tree computing new root
-        num_leaves = len(self.past_transactions)
+        print('Block', self.index, 'created at', self.timestamp)
+        print('Hash:', self.hash)
+
+    def add_transaction(self, transaction):
+        self.past_transactions.append(transaction)
+
+    def build_tree(self, past_transactions, verbose):
+        """
+        Builds merkle tree from self.past_transactions. Includes naive implementation of merkle tree as list of lists.
+        :return: root of generated merkle tree
+        """
+        num_leaves = len(past_transactions)
         remaining_nodes = num_leaves
-        active_level = self.past_transaction_hashes
+
+        generated_tree = []
+
+        # Generate hashes for bottom layer
+        leaf_hashes = []
+        for transaction in past_transactions:
+            new_hash = hashlib.sha256(transaction.to_json().encode('utf-8')).hexdigest()
+            leaf_hashes.append(new_hash)
+
+        generated_tree.append(leaf_hashes)
+        active_level = leaf_hashes
 
         while remaining_nodes != 1:
             if remaining_nodes % 2 == 0:
@@ -88,111 +124,58 @@ class Block():
                 new_tier.append(new_hash)
             if odd:
                 new_tier.append(active_level[num_leaves-1].encode('utf-8'))
-            self.tiered_node_list.append(new_tier)
+            generated_tree.append(new_tier)
             remaining_nodes = len(new_tier)
             active_level = new_tier
 
-        self.tiered_node_list.insert(0, self.past_transaction_hashes)
-        self.root = self.tiered_node_list[-1][0]
-        print('Tree build complete!\n' + 'No. of levels:', len(self.tiered_node_list))
+        self.merkle_root = generated_tree[-1][0]
+
+        if verbose:
+            print('Tree build complete!\n' + 'No. of levels:', len(generated_tree))
+            print(generated_tree)
+
+        return generated_tree
 
     def to_json(self):
-        # Build tree and output to json
-        self.build()
-        block = {'block_number': self.block_number,
-                 'previous': self.previous,
-                 'timestamp': self.timestamp,
-                 'transactions': self.past_transactions,
-                 'root': self.root,
-                 'nonce': self.nonce
-                 }
-        block_obj = json.dumps(block, sort_keys=True)
-        return block_obj
-
-    def add_block_number(self, number):
-        self.block_number = number
-
-    def add_previous_hash(self, previous_hash):
-        self.previous = previous_hash
-
-    def get_proof(self):
-        # Get membership proof for entry
+        """
+        Generate JSON string from block
+        :return: JSON str
+        """
         pass
 
-    def get_root(self):
-        # Return the current root
-        if not self.root:
-            print('NO ROOT FOUND!\n' + 'Build new root using \'build\' method before calling \'get_root\'.')
-            return None
-
-        return self.tiered_node_list[-1][0]
-
-    def verify_proof(entry, proof, root):
-        # Verifies proof for entry and given root. Returns boolean.
-        ...
-
-
-class Blockchain:
-    def __init__(self):
-        self.genesis_block = False
-        self.chain = OrderedDict()
-        self.create_genesis('yo mommas house')
-
-        self.previous_hash = ''
-
-    def create_genesis(self, recipient_address):
-        """
-        creates genesis block, adds to chain and sends 50 coins to recipient
-        :recipient_address: mock address to send first txn
-        :return: genesis Block object
-        """
-        if self.genesis_block:
-            return 'Genesis already created!'
-
-        genesis_transaction = OrderedDict({'sender': "Author",
-                                           'receiver': recipient_address,
-                                           'amount': 50,
-                                           'comment': "Genesis Transaction"})
-
-        block = Block()
-        block.add(genesis_transaction)
-        block.add_block_number(1)
-        block.add_previous_hash('00000')
-
-        self.chain[self.hash(block.to_json())] = block
-        self.genesis_block = True
-        self.previous_hash = self.hash(block)
-
-        return block
-
-    def add_block(self, block, previous_hash=None):
-        """
-        Adds block to chain
-        :param block: Block object to be added
-        :return:
-        """
-
-        # TODO: add ability to select location to add block
-
-        if not previous_hash:
-            # add to main (longest chain)
-            previous_hash = self.chain[-1].to_json()
-
-        block.add_previous_hash()
-        block.add_block_number()
-
-        self.chain[self.hash(block.to_json())] = block
-
-    def hash(self, block):
+    def generate_hash(self):
         """
         Create a SHA-256 hash of a Block object
         """
         # Make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
-        block_string = block.to_json()
+        header = OrderedDict({'version': self.version,
+                              'index': self.index,
+                              'previous_hash': self.previous_hash,
+                              'timestamp': self.timestamp,
+                              'merkle_root': self.merkle_root,
+                              'nonce': self.nonce
+                              })
 
-        return hashlib.sha256(block_string).hexdigest()
+        header_json = json.dumps(header).encode('utf-8')
+        header_hash = hashlib.sha256(header_json).hexdigest()
+        self.hash = header_hash
+        return header_hash
 
-    def resolve(self):
-        """
-        :return: latest block of the longest chain
-        """
+    @staticmethod
+    def make_nonce():
+        """Generate pseudorandom number."""
+        return str(random.randint(0, 100000000))
+
+
+
+sender_private = SigningKey.generate(curve=NIST192p)
+sender_public = sender_private.get_verifying_key()
+
+tx1 = Transaction(sender_public.to_string().hex(), 'rofl', '50')
+tx2 = Transaction(sender_public.to_string().hex(), 'lmao', '1000000')
+tx3 = Transaction(sender_public.to_string().hex(), 'ded', '123')
+
+transactions = [tx1, tx2, tx3]
+
+block1 = Block(0,'previous-hash', transactions)
+
