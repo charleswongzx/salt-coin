@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from ecdsa import SigningKey, NIST192p, VerifyingKey
+from datetime import datetime
 
 import json, time, random, hashlib
 
@@ -57,26 +58,17 @@ class Transaction(object):
 
 class Block(object):
 
-    # TODO: implement merkle generation, store root in self.root
-    # header: previous_hash, index, merkle root, timestamp, nonce, block number, version
-    # content: past transactions
-    # self.hash is hash of the header
-
-    def __init__(self, index, previous_hash, past_transactions, verbose=False):
+    def __init__(self, past_transactions, verbose=False):
         """
         Initialisation of block
-        :param index: designated block number decided by order in which block is inserted into blockchain
-        :param previous_hash: hash of previous block in chain
         :param past_transactions: list of transaction instances using Transaction() class
         """
-        if verbose:
-            print('Creating new block...')
 
         # Header
         self.version = '0.1-pre-alpha'
-        self.index = index
-        self.previous_hash = previous_hash
-        self.timestamp = time.time()
+        self.index = None  # Applied when inserted into chain
+        self.previous_hash = None  # Applied when inserted into chain
+        self.timestamp = None  # Applied when inserted into chain
         self.merkle_root = None  # Assigned during build_tree() step
         self.nonce = self.make_nonce()
 
@@ -84,13 +76,11 @@ class Block(object):
         self.past_transactions_tree = self.build_tree(past_transactions, verbose)  # Stored as a list
 
         # Generated hash
-        self.hash = self.generate_hash()  # to be generated upon adding to blockchain
+        self.hash = None  # Generated when inserted into chain
+        # self.hash = self.generate_hash()  # to be generated upon adding to blockchain
 
-        print('Block', self.index, 'created at', self.timestamp)
-        print('Hash:', self.hash)
-
-    def add_transaction(self, transaction):
-        self.past_transactions.append(transaction)
+    # def add_transaction(self, transaction):
+    #     self.past_transactions.append(transaction)
 
     def build_tree(self, past_transactions, verbose):
         """
@@ -162,11 +152,64 @@ class Block(object):
         """Generate pseudorandom number."""
         return str(random.randint(0, 100000000))
 
+
 class Blockchain:
     def __init__(self):
-        self.chain = OrderedDict()
-        self.create_genesis('yo mommas house')
-        self.previous_hash = ''
+        self.genesis_block = False
+        self.current_block_number = 0
+
+        self.chain = {}  # Arranged in hash: block key-value formatting
+        self.previous_hash = None
+        self.create_genesis()
+
+    def create_genesis(self):
+        """
+        creates genesis block, adds to chain and sends 50 coins to recipient
+        :recipient_address: mock address to send first txn
+        :return: genesis Block object
+        """
+        if self.genesis_block:
+            return 'Genesis already created!'
+
+        genesis_transaction = Transaction('00000000000', '000000001', 50, 'Genesis transaction')
+        previous_hash = 'genesis'
+
+        block = Block([genesis_transaction])
+
+        self.add_block(block)
+        self.genesis_block = True
+
+        return block
+
+    def add_block(self, block, target_block_hash=None):
+        """
+        Assigns block a timestamp and index and adds to chain
+        :param block: Block() object to be added
+        :param target_block_hash: Used to assign block to another fork. Defaults to None for last used chain
+        :return:
+        """
+        block.timestamp = time.time()
+        block.index = self.next_block_number()
+        block.generate_hash()
+
+        self.chain[block.hash] = block
+
+        if target_block_hash:
+            block.previous_hash = target_block_hash
+        else:
+            block.previous_hash = self.previous_hash
+
+        self.previous_hash = block.hash
+
+        print('Block {} created in chain at {}'.format(block.index, datetime.utcfromtimestamp(block.timestamp).strftime('%Y-%m-%d %H:%M:%S')))
+        print('Hash:', block.hash, '\n')
+
+    def next_block_number(self):
+        self.current_block_number += 1
+        return self.current_block_number - 1
+
+    # TODO: Get existing blocks
+    # TODO: Save blocks to storage instead of memory
 
 
 sender_private = SigningKey.generate(curve=NIST192p)
@@ -178,5 +221,11 @@ tx3 = Transaction(sender_public.to_string().hex(), 'ded', '123')
 
 transactions = [tx1, tx2, tx3]
 
-block1 = Block(0,'previous-hash', transactions)
+block1 = Block(transactions)
 
+salt_coin = Blockchain()
+
+for i in range (10):
+    salt_coin.add_block(block1)
+
+print(salt_coin.chain)
