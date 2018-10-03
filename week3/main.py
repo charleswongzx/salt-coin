@@ -30,13 +30,9 @@ def demo():
     salt_coin = Blockchain()
     miner1 = Miner(salt_coin)
 
-    miner1.create_block(transactions)
-    miner1.mine_block()
-
-
-    # for i in range (10):
-    #     salt_coin.add_block(block1)
-    #     time.sleep(0.2)
+    for i in range(10):
+        miner1.create_block(transactions)
+        miner1.mine_block()
 
     pprint(salt_coin.chain)
 

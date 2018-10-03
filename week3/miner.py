@@ -3,6 +3,10 @@ import time
 
 
 class Miner(object):
+    # TODO: reward miner 100 coins
+    # TODO: tx verification checks
+    # TODO: add balance check and UTXO model
+
     def __init__(self, blockchain):
         self.target = None  # 256-bit number large enough to take miner 2-5s to solve, set when miner connects to network
         self.blockchain = blockchain  # chain assigned to miner
@@ -28,15 +32,11 @@ class Miner(object):
 
         print('Block {} successfully mined!\n'.format(self.active_block.hash))
 
-        if self.submit_block():
-            self.active_block = None
-            self.target = None
-
-
+        self.submit_block()
 
     def submit_block(self):
         self.blockchain.add_block(self.active_block)
-        print('Block {} submitted to blockchain!'.format(self.active_block.hash))
+        print('Block {} submitted to blockchain!\n'.format(self.active_block.hash))
 
     # looks at available transactions, sees how many txns fit into block
     # takes first k txns that fit, checks that they are signed and validated. if not signed or invalid, discard.

@@ -18,7 +18,7 @@ class Block(object):
         self.timestamp = None  # Applied when inserted into chain
         self.merkle_root = None  # Assigned during build_tree() step
         self.nonce = random.getrandbits(32)  # Assigned once during creation, and again everytime miner attempts to rehash block
-        self.target = random.getrandbits(256)  # can be converted into shorthand "bits" for space saving
+        self.target = 1.7e72  # can be converted into shorthand "bits" for space saving
 
         # Content
         self.past_transactions_tree = self.build_tree(past_transactions, verbose)  # Stored as a list
@@ -28,7 +28,7 @@ class Block(object):
 
     def build_tree(self, past_transactions, verbose):
         """
-        Builds merkle tree from self.past_transactions. Includes naive implementation of merkle tree as list of lists.
+        Builds merkle tree from self.past_transactions. Naive implementation of merkle tree as list of lists.
         :return: root of generated merkle tree
         """
         num_leaves = len(past_transactions)
@@ -85,7 +85,8 @@ class Block(object):
                               'previous_hash': self.previous_hash,
                               'timestamp': self.timestamp,
                               'merkle_root': self.merkle_root,
-                              'nonce': self.nonce
+                              'nonce': self.nonce,
+                              'target': self.target
                               })
 
         header_json = json.dumps(header).encode('utf-8')
