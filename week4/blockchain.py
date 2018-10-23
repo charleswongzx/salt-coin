@@ -26,7 +26,6 @@ class Blockchain:
 
     def add (self, block, index, public_key):
         fork = False
-        
         if len(self.chain) > index:
             fork = True
         check = self.checkvalidblock(block,index,fork)
@@ -45,6 +44,8 @@ class Blockchain:
         
         
     def resolve(self):
+        print (self.chain[-1][0])
+        print (self.chain[-1])
         if len(self.chain[-1][0]) > len (self.chain[-1][1]):
             new_chain=self.chain[:-1]
             for i in self.chain[-1][0]:
@@ -58,13 +59,17 @@ class Blockchain:
             self.chain = new_chain[:]
 
     def checkvalidblock(self,block_array,block_index,fork):
+        print ("********",fork)
         firstBlock = block_array[0]
         previousBlock = self.chain[block_index-1][0]
+        print (firstBlock.previousHash,previousBlock.hash)
         if firstBlock.previousHash == previousBlock.hash:
             if fork:
                 last_block=self.chain.pop()
                 forked_block = [last_block,block_array]
                 self.chain.append(forked_block)
+                print ("++++++++++++",self.chain)
+                print ("++++++++++++",forked_block)
             else:
                 self.chain.append(block_array)
 

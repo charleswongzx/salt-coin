@@ -3,6 +3,7 @@ from transaction import Transaction
 from collections import OrderedDict
 import time
 import json
+import copy
 import ecdsa
 
 class Miner:
@@ -13,7 +14,8 @@ class Miner:
         self.record_ledger = self.getChainLedger()
         self.verifiedTransactions=[]
         self.chain_check=False
-        self.index=len(chain.chain)   
+        self.index=len(chain.chain) 
+        self.selfish_index=len(chain.chain)    
         self.selfish_mine_count =0
         self.block_list=[]
 
@@ -37,13 +39,19 @@ class Miner:
             self.chain.add(self.block_list, self.index, self.public_key.to_string())
             self.block_list=[]
             self.index +=1
+            print ("-LOLOL--------------Selfish index:",self.index)
             #update record_ledger
             self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]
 
 
     def selfish_mine(self, pendingTransactions):
+            
+                # self.selfish_index = copy.copy(self.index)
+            
             print ("Selfish Mining Begun")
+            print ("-Heyyy--------------Selfish index:",self.index)
+            self.index
             self.verifyTransaction(pendingTransactions)
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
@@ -53,11 +61,12 @@ class Miner:
             print("BLOCK SUCESSFULLY MINED............")
             
             self.block_list.append(block)
-            if self.selfish_mine_count > 2:
+            if self.selfish_mine_count > 1:
                 print ("Adding list of blocks to blockchain")
-                self.chain.add(self.block_list, self.index, self.public_key.to_string())
+                print ("---------------Selfish index:",self.selfish_index)
+                self.chain.add(self.block_list, self.selfish_index, self.public_key.to_string())
                 self.block_list=[]
-            self.index +=1
+                self.selfish_index +=1
             #update record_ledger
             self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]

@@ -54,8 +54,8 @@ class Block(object):
             generated_tree.append(new_tier)
             remaining_nodes = len(new_tier)
             active_level = new_tier
-        print('Merkle tree build complete!\n' + 'No. of levels:', len(generated_tree))
-        print(generated_tree, '\n')
+        #print('Merkle tree build complete!\n' + 'No. of levels:', len(generated_tree))
+        #print(generated_tree, '\n')
         return generated_tree[-1][0], generated_tree
 
     def proof_tree(self,transaction):
