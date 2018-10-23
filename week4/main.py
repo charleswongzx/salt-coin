@@ -121,13 +121,13 @@ def demo():
     saltCoin.pendingTransaction.append(trans2)
     
 
-    miner1.selfish_mine(saltCoin.pendingTransaction)
+    miner1.mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans3)
     saltCoin.pendingTransaction.append(trans4)
 
     miner1.mine(saltCoin.pendingTransaction)
 
-    miner1.selfish_mine(saltCoin.pendingTransaction)
+    miner1.mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans5)   
 
     miner1.mine(saltCoin.pendingTransaction)
