@@ -23,7 +23,7 @@ class Client:
     #get list of block headers from miner's chain
         headers=[]
         for block in miner.chain.chain:
-            headers.append(block.header)
+            headers.append(block[0].header)
         return headers
 
     def receive_transaction(self, transaction, miner):

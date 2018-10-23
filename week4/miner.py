@@ -26,6 +26,7 @@ class Miner:
     def mine(self, pendingTransactions):
             block_list=[]
             self.verifyTransaction(pendingTransactions)
+
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
@@ -81,7 +82,7 @@ class Miner:
     def getChainLedger(self):
         record_ledger={}
         for block in self.chain.chain:
-            for trans in block.transactions:
+            for trans in block[0].transactions:
             	if trans.sender_public_key in record_ledger:
             		record_ledger[trans.sender_public_key] -= trans.amount
             	else:
@@ -109,7 +110,7 @@ class Miner:
 
     def getpath(self,transaction):
         for block in self.chain.chain:
-            path = block.proof_tree(transaction)
+            path = block[0].proof_tree(transaction)
             if path !=0:
                 return path
 
