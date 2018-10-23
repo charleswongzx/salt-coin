@@ -62,12 +62,19 @@ SPV class:
 
 
 ## Differences between Bitcoin and your SUTDcoin:
-In Bitcoin, everything is decentralised.
-
-But for our implementation of SUTDcoin, due to constraints of network, we were not able to make it decentralised.
-
-e.g. Our pool of transactions is a centralised pool.
-
+  1. Decentralise
+    
+    In Bitcoin, everything is decentralised.
+    But for our implementation of SUTDcoin, due to constraints of network, we were not able to make it decentralised.
+    e.g. Our pool of transactions is a centralised pool.
+  
+  2. Difficulty
+    
+    In Bitcoin, diificulty changes over time, whereas SUTDCoin has fixed difficulty
+    
+  3. Number of Miners
+  
+  
 ## Authors
 Charles Wong
 
