@@ -55,9 +55,10 @@ class MerkleTree():
         return self.tiered_node_list[-1]
 
 
-    def verify_proof(entry, proof, root):
+    def verify_proof(self, entry, proof, root):
         # Verifies proof for entry and given root. Returns boolean.
         ...
+        return None
 
 
 lol = MerkleTree()
