@@ -145,20 +145,20 @@ def demo():
         print (key, miner1.record_ledger[key])
     
     # Printing of actual address-balance ledger this is for verification purposes, cos we can't really read the address key
-    print("\nBalance(miner-address)", miner1.record_ledger[miner1.public_key.to_string().hex()])
-    print("Balance(address1)", miner1.record_ledger[client1.public_key.to_string().hex()])
-    print("Balance(address2)", miner1.record_ledger[client2.public_key.to_string().hex()])
+    print("\nBalance(miner-address): ", miner1.record_ledger[miner1.public_key.to_string().hex()])
+    print("Balance(address1): ", miner1.record_ledger[client1.public_key.to_string().hex()])
+    print("Balance(address2): ", miner1.record_ledger[client2.public_key.to_string().hex()])
 
     # Test for SPV client receive transaction function
     # return True if transaction is in chain
 
-    print(client1.receive_transaction(trans1, miner1))
-    print(client1.receive_transaction(trans2, miner1))
-    print(client1.receive_transaction(trans3, miner1))
-    print(client1.receive_transaction(trans4, miner1))
+    print("\nIs transaction 1 published in the chain: ",client1.receive_transaction(trans1, miner1))
+    print("Is transaction 2 published in the chain: ",client1.receive_transaction(trans2, miner1))
+    print("Is transaction 3 published in the chain: ",client1.receive_transaction(trans3, miner1))
+    print("Is transaction 4 published in the chain: ",client1.receive_transaction(trans4, miner1))
 
 
 
 if __name__ == '__main__':
-    print('Running blockchain demo!')
+    print('\n***** Spinning Up The Blockchain! *****\n')
     demo()

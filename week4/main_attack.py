@@ -162,5 +162,5 @@ def demo():
 
 
 if __name__ == '__main__':
-    print('Running blockchain demo!')
+    print('\n***** Spinning Up The Blockchain! *****\n')
     demo()

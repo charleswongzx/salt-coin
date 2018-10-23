@@ -26,32 +26,32 @@ class Miner:
 # 4. Add block to chain upon successful mine
 # 5. Update Miner's address:balance
 # 6. Miner gets rewarded
- 
+    # Function to mine which mines the block and and updates the ledger and pushes changed to the chain
     def mine(self, pendingTransactions):
             if self.index<len(self.chain.chain) :
                 self.record_ledger=self.getChainLedger()
                 self.index=len(self.chain.chain)
             status=False
             block_list=[]
+            print ("Verfiying Transcations")
             self.verifyTransaction(pendingTransactions)
+            
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
-            print("BLOCK SUCESSFULLY MINED......s......")
+            print("++++++ BLOCK SUCESSFULLY MINED ++++++")
             block_list.append(block)
-          
             status=self.chain.add(block_list, self.index, self.public_key.to_string())
-            
             self.index +=1
    
-            #update record_ledger
+            # Update record_ledger
             if status:
                 self.record_ledger=self.getChainLedger()
             else:
                 self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]
 
-
+    # Function to selfish mine which mines the block while not broadcasting the changes to the chain and only broadcasting the changes after mining a block first
     def selfish_mine(self, pendingTransactions):
             status=False
             if self.selfish_index ==1 :
@@ -59,32 +59,35 @@ class Miner:
                 self.selfish_index = len(self.chain.chain)
                 self.record_ledger=self.getChainLedger()
             
-            print ("\nSelfish Mining Begun")
+            print ("\nSelfish Mining Is Underway")
             self.verifyTransaction(pendingTransactions)
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
-            print ("Selfish Mining of a block successfull")
             self.selfish_mine_count += 1
-            print("selfish BLOCK SUCESSFULLY MINED............")
-            
+            print("++++++ SELFISH BLOCK SUCESSFULLY MINED ++++++")
             self.block_list.append(block)
             self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]
             if self.selfish_mine_count > 1:
-                print ("Adding list of blocks to blockchain")
+                print ("Adding list of selfishly mined blocks to blockchain")
                
                 status = self.chain.add(self.block_list, self.selfish_index, self.public_key.to_string())
                 self.block_list=[]
                 self.selfish_index +=1
                 if status:
                     self.record_ledger=self.getChainLedger()
-            #update record_ledger
+
+                #update record_ledger
                 else:
                     self.updateLedger(self.verifiedTransactions)
                 self.verifiedTransactions=[]
+
+    # Update function is suppose to simulate a broadcast function in a network. 
     def update(self):
         self.record_ledger=self.getChainLedger()
+
+
 # Miners should have the ability to send money to other miners
 # Implement: new_transaction function
     def send_transaction(self, address, amount):

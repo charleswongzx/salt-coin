@@ -38,10 +38,10 @@ class Blockchain:
             reward = Transaction( self.master_public_key.to_string(), public_key , self.miningReward * len(block))
             reward.sign(reward.json_msg, self.master_private_key.to_string())
             self.pendingTransaction.append(reward)
-        print ("/nStatus of fork:/n",fork)
+
         if fork==True:
-            print ("Did you enter fork?")
             self.resolve()
+            print ("Chain has been resolved by taking the longest chain")
             fork = False
             return True
         else:
@@ -49,8 +49,6 @@ class Blockchain:
         
         
     def resolve(self):
-        print (self.chain[-1][0])
-        print (self.chain[-1])
         if len(self.chain[-1][0]) > len (self.chain[-1][1]):
             new_chain=self.chain[:-1]
             for i in self.chain[-1][0]:
@@ -68,17 +66,16 @@ class Blockchain:
     
         firstBlock = block_array[0]
         previousBlock = self.chain[block_index-1][0]
-        print ("")
-        print ("headersssss")
-        print (previousBlock.header)
-        print (firstBlock.header,firstBlock.hash,previousBlock.hash)
         if firstBlock.previousHash == previousBlock.hash:
+            print ("Block Accepted")
             if fork:
+                print ("Fork Detected")
                 last_block=self.chain.pop()
                 forked_block = [last_block,block_array]
+                print ("Fork Block Added to Chain")
                 self.chain.append(forked_block)
-         
             else:
+                print ("Block Added to Chain")
                 self.chain.append(block_array)
 
             return True
