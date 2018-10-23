@@ -13,7 +13,9 @@ class Miner:
         self.record_ledger = self.getChainLedger()
         self.verifiedTransactions=[]
         self.chain_check=False
-        self.index=len(chain.chain)      
+        self.index=len(chain.chain)   
+        self.selfish_mine_count =0
+        self.block_list=[]
 
 # Mine class (Steps):
 # 1. Check if chain is valid & Verify pool of pending Transactions
@@ -24,14 +26,41 @@ class Miner:
 # 6. Miner gets rewarded
  
     def mine(self, pendingTransactions):
-            block_list=[]
+           
             self.verifyTransaction(pendingTransactions)
+            print ("this is the one!!!", self.chain.getLatestBlock() )
+
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
             print("BLOCK SUCESSFULLY MINED............")
+
+            self.block_list.append(block)
+            self.chain.add(self.block_list, self.index, self.public_key.to_string())
+            self.block_list=[]
+
+            self.index +=1
+            #update record_ledger
+            self.updateLedger(self.verifiedTransactions)
+            self.verifiedTransactions=[]
+
+        def selfish_mine(self, pendingTransactions):
+
+            
+            self.verifyTransaction(pendingTransactions)
+            print ("this is the one!!!", self.chain.getLatestBlock() )
+
+            block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
+            #Proof-Of-Work
+            block.mineBlock()
+            self.selfish_mine += 1
+            print("BLOCK SUCESSFULLY MINED............")
+            
             block_list.append(block)
-            self.chain.add(block_list, self.index, self.public_key.to_string())
+            if self.selfish_mine > 5:
+
+                self.chain.add(block_list, self.index, self.public_key.to_string())
+                self.block_list=[]
             self.index +=1
             #update record_ledger
             self.updateLedger(self.verifiedTransactions)
@@ -79,12 +108,9 @@ class Miner:
 # if it exist, add or subtract balance 
 # if it does not exist create new key with value of 0
     def getChainLedger(self):
-<<<<<<< HEAD
-=======
         record_ledger={}
->>>>>>> b695cf5138820259d6e59e4a92ecfbbc71af06b8
         for block in self.chain.chain:
-            for trans in block.transactions:
+            for trans in block[0].transactions:
             	if trans.sender_public_key in record_ledger:
             		record_ledger[trans.sender_public_key] -= trans.amount
             	else:
