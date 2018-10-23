@@ -111,9 +111,8 @@ def demo():
     # therefore transaction 2 and 3 is the miner giving coins to the 2 clients
     trans2 = miner1.send_transaction(client1.public_key.to_string(),50)
     trans3 = miner1.send_transaction(client2.public_key.to_string(),50)
-    # transaction 4 and 5 is the transaction between clients 
-    trans4 = client1.send_transaction(client2.public_key.to_string(),5)
-    trans5 = client1.send_transaction(client2.public_key.to_string(),10)
+    # transaction 4 is the transaction between clients 
+    trans4 = client1.send_transaction(client2.public_key.to_string(),10)
 
     saltCoin.pendingTransaction.append(trans1)
     miner1.mine(saltCoin.pendingTransaction)
@@ -123,12 +122,12 @@ def demo():
 
     miner1.mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans3)
-    saltCoin.pendingTransaction.append(trans4)
+    
 
     miner1.mine(saltCoin.pendingTransaction)
 
     miner1.mine(saltCoin.pendingTransaction)
-    saltCoin.pendingTransaction.append(trans5)   
+    saltCoin.pendingTransaction.append(trans4)   
 
     miner1.mine(saltCoin.pendingTransaction)
     
@@ -153,7 +152,11 @@ def demo():
 
     # Test for SPV client receive transaction function
     # return True if transaction is in chain
-    print(client1.receive_transaction(trans5, miner1))
+    print(client1.receive_transaction(trans4, miner1))
+    print(client1.receive_transaction(trans1, miner1))
+    print(client1.receive_transaction(trans2, miner1))
+    print(client1.receive_transaction(trans3, miner1))
+
 
 
 if __name__ == '__main__':
