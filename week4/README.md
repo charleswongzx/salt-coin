@@ -70,9 +70,20 @@ SPV class:
   
   2. Difficulty
     
-    In Bitcoin, difficulty changes over time, whereas SUTDCoin has fixed difficulty
+    In Bitcoin, difficulty changes over time, whereas SUTDCoin has a fixed difficulty and a fixed reward over time. 
     
-  3. Number of Miners
+  3. Pay Off Function
+    
+    In Bitcoin the rewards for a miner are calculated by  taking the reward + fees(from the user) - cost(electrcity & etc). In SUTDcoin we provide a simplistic flat fee for any block mined
+    
+  4. Fees and Transaction Priority
+    
+    In Bitcoin the priority of which transaction gets added to the block is determined by the amount of fees a certain transaction has attached to it. So miners are incentivised to add transactions with higher fees first. In SUTDcoin, there is no fees and no priority, transcations are just sorted by a first in last out stack system. 
+    
+  5. Block Size
+    
+    In Bitcoin there is a fixed block size of 1mb per block. 
+    
   
   
 ## Authors
