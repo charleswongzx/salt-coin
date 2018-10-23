@@ -19,7 +19,6 @@ class Transaction(object):
                                 'nonce' : self.nonce,
                                 'signature' : self.signature })
         return json.dumps(obj_dict, sort_keys=True)
-
     
     def sign(self, json_obj, private_key_string):
         sk = ecdsa.SigningKey.from_string(private_key_string, curve=ecdsa.NIST192p)
