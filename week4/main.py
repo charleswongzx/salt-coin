@@ -2,6 +2,7 @@ from blockchain import Blockchain
 from block import Block
 from miner import Miner
 from transaction import Transaction
+from SPVClient import Client
 import json
 from io import StringIO
 import ecdsa
@@ -97,33 +98,22 @@ def demo():
     """
 
     # Test Code for Miner Class with Key Pairs & signing of transactions
-    # GENERATING KEY PAIRS 1 MINER, 2 CLIENTS
-    miner_private = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p)
-    miner_public = miner_private.get_verifying_key()
-    address1_private = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p) 
-    address1_public = address1_private.get_verifying_key()
-    address2_private = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p) 
-    address2_public = address2_private.get_verifying_key()
-
+    client1=Client()
+    client2=Client()
     pendingTransaction=[]
     saltCoin = Blockchain()
-    miner1 = Miner(saltCoin, miner_public.to_string(), miner_private.to_string())
+    miner1 = Miner(saltCoin)
 
     # GENERATING LIST OF SIGNED TRANSACTIONS
     # trans1 is not meant to go through, based on the algo, both clients start with zero in their wallet
-    trans1 = Transaction(address1_public.to_string(), address2_public.to_string(), 100)
-    trans1.sign(trans1.json_msg, address1_private.to_string())
+    trans1 = client1.send_transaction(client2.public_key.to_string(),100)
     # when block 1 is mined, miner gets a reward transaction which is added to wallet once block 2 is mined
     # therefore transaction 2 and 3 is the miner giving coins to the 2 clients
-    trans2 = Transaction(miner_public.to_string(), address2_public.to_string(), 50)
-    trans2.sign(trans2.json_msg, miner_private.to_string())
-    trans3 = Transaction(miner_public.to_string(), address1_public.to_string(), 50)
-    trans3.sign(trans3.json_msg, miner_private.to_string())
+    trans2 = miner1.send_transaction(client1.public_key.to_string(),50)
+    trans3 = miner1.send_transaction(client2.public_key.to_string(),50)
     # transaction 4 and 5 is the transaction between clients 
-    trans4 = Transaction(address1_public.to_string(), address2_public.to_string(), 5)
-    trans4.sign(trans4.json_msg, address1_private.to_string())
-    trans5 = Transaction(address2_public.to_string(), address1_public.to_string(), 10)
-    trans5.sign(trans5.json_msg, address2_private.to_string())
+    trans4 = client1.send_transaction(client2.public_key.to_string(),5)
+    trans5 = client2.send_transaction(client1.public_key.to_string(),10)
 
     pendingTransaction.append(trans1)
     pendingTransaction=[miner1.mine(pendingTransaction)]
@@ -143,20 +133,20 @@ def demo():
         print (block.header)
         print ("Block ", i, "Hash: ")
         print (block.hash)
-        print ("Block ", i, "Transactions: ")
         i+=1
-        for trans in block.transactions:
-            print (trans.json_msg)
 
     print ("\nBalance Ledger:")
     for key in miner1.record_ledger:
         print (key, miner1.record_ledger[key])
     
     # Printing of actual address-balance ledger this is for verification purposes, cos we can't really read the address key
-    print("\nBalance(miner-address)", miner1.record_ledger[miner_public.to_string().hex()])
-    print("Balance(address1)", miner1.record_ledger[address1_public.to_string().hex()])
-    print("Balance(address2)", miner1.record_ledger[address2_public.to_string().hex()])
+    print("\nBalance(miner-address)", miner1.record_ledger[miner1.public_key.to_string().hex()])
+    print("Balance(address1)", miner1.record_ledger[client1.public_key.to_string().hex()])
+    print("Balance(address2)", miner1.record_ledger[client2.public_key.to_string().hex()])
 
+    # Test for SPV client receive transaction function
+    # return True if transaction is in chain
+    print(client1.receive_transaction(trans4, miner1))
 
 
 if __name__ == '__main__':
