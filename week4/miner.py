@@ -28,38 +28,33 @@ class Miner:
     def mine(self, pendingTransactions):
            
             self.verifyTransaction(pendingTransactions)
-            print ("this is the one!!!", self.chain.getLatestBlock() )
-
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
             print("BLOCK SUCESSFULLY MINED............")
-
             self.block_list.append(block)
+          
             self.chain.add(self.block_list, self.index, self.public_key.to_string())
             self.block_list=[]
-
             self.index +=1
             #update record_ledger
             self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]
 
-        def selfish_mine(self, pendingTransactions):
 
-            
+    def selfish_mine(self, pendingTransactions):
+           
             self.verifyTransaction(pendingTransactions)
-            print ("this is the one!!!", self.chain.getLatestBlock() )
-
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
             self.selfish_mine += 1
             print("BLOCK SUCESSFULLY MINED............")
             
-            block_list.append(block)
+            self.block_list.append(block)
             if self.selfish_mine > 5:
 
-                self.chain.add(block_list, self.index, self.public_key.to_string())
+                self.chain.add(self.block_list, self.index, self.public_key.to_string())
                 self.block_list=[]
             self.index +=1
             #update record_ledger
@@ -138,7 +133,7 @@ class Miner:
 
     def getpath(self,transaction):
         for block in self.chain.chain:
-            path = block.proof_tree(transaction)
+            path = block[0].proof_tree(transaction)
             if path !=0:
                 return path
 

@@ -129,9 +129,9 @@ def demo():
     i=0
     for block in miner1.chain.chain:
         print ("\nBlock ", i, "Header: ")
-        print (block.header)
+        print (block[0].header)
         print ("Block ", i, "Hash: ")
-        print (block.hash)
+        print (block[0].hash)
         i+=1
 
     print ("\nBalance Ledger:")
