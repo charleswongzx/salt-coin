@@ -1,5 +1,4 @@
 from block import Block
-from blockchain import Blockchain
 from transaction import Transaction
 from collections import OrderedDict
 import time
@@ -7,19 +6,17 @@ import json
 import ecdsa
 
 class Miner:
-    def __init__(self, chain, public_key, private_key):
+    def __init__(self, chain):
         # the 4 lines below is temporary till network is implemented
-        master_private = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p)
-        master_public = master_private.get_verifying_key()
-        self.master_public_key = master_public 
-        self.master_private_key = master_private 
-        self.chain=chain
-        self.public_key=public_key
-        self.private_key=private_key
+        self.master_private_key = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p)
+        self.master_public_key = self.master_private_key.get_verifying_key()
+        self.chain = chain
+        self.private_key = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p)
+        self.public_key = self.private_key.get_verifying_key()
+        #self.record_ledger = self.getChainLedger()
         self.record_ledger = { self.master_public_key.to_string().hex() : 10000 }
         self.verifiedTransactions=[]
-        self.chain_check=False
-        
+        self.chain_check=False      
 
 # Mine class (Steps):
 # 1. Check if chain is valid & Verify pool of pending Transactions
@@ -41,13 +38,16 @@ class Miner:
             self.verifiedTransactions=[]
             master_public = self.master_public_key
 
-            reward = Transaction( master_public.to_string(), self.public_key , 100)
+            reward = Transaction( master_public.to_string(), self.public_key.to_string() , 100)
             reward.sign(reward.json_msg, self.master_private_key.to_string())
             return reward
 
-
 # Miners should have the ability to send money to other miners
 # Implement: new_transaction function
+    def send_transaction(self, address, amount):
+        transaction = Transaction(self.public_key.to_string(), address, amount)
+        transaction.sign(transaction.json_msg, self.private_key.to_string())
+        return transaction
 
 # Verify Pending Transactions and add into list of verifiedTransactions
 # We are verifying that there is enough balance in sender's wallet and that the transaction is signed aka trusted
@@ -109,4 +109,11 @@ class Miner:
                 print(previousBlock.hash)
                 return False
         return True
+
+    def getpath(self,transaction):
+        for block in self.chain.chain:
+            path = block.proof_tree(transaction)
+            if path !=0:
+                return path
+
 
