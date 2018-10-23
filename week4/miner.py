@@ -13,7 +13,7 @@ class Miner:
         self.record_ledger = self.getChainLedger()
         self.verifiedTransactions=[]
         self.chain_check=False
-        self.index=len(chain)      
+        self.index=len(chain.chain)      
 
 # Mine class (Steps):
 # 1. Check if chain is valid & Verify pool of pending Transactions
@@ -79,17 +79,19 @@ class Miner:
 # if it exist, add or subtract balance 
 # if it does not exist create new key with value of 0
     def getChainLedger(self):
-        for block in self.chain:
+        record_ledger={}
+        for block in self.chain.chain:
             for trans in block.transactions:
-            	if trans.sender_public_key in self.record_ledger:
-            		self.record_ledger[trans.sender_public_key] -= trans.amount
+            	if trans.sender_public_key in record_ledger:
+            		record_ledger[trans.sender_public_key] -= trans.amount
             	else:
-            		self.record_ledger[trans.sender_public_key] -= trans.amount
+            		record_ledger[trans.sender_public_key] = 0
             	
-            	if trans.receiver_public_key in self.record_ledger:
-            		self.record_ledger[trans.receiver_public_key] += trans.amount
+            	if trans.receiver_public_key in record_ledger:
+            		record_ledger[trans.receiver_public_key] += trans.amount
             	else:
-            		self.record_ledger[trans.receiver_public_key] = trans.amount
+            		record_ledger[trans.receiver_public_key] = trans.amount
+        return record_ledger
 
 
 # Validation of Chain's Hash, Checks everytime we mine a block

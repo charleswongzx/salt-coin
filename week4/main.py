@@ -101,9 +101,7 @@ def demo():
     client1=Client()
     client2=Client()
     saltCoin = Blockchain()
-
     miner1 = Miner(saltCoin)
-
 
     # GENERATING LIST OF SIGNED TRANSACTIONS
     # trans1 is not meant to go through, based on the algo, both clients start with zero in their wallet
@@ -148,7 +146,7 @@ def demo():
     # Test for SPV client receive transaction function
     # return True if transaction is in chain
     print(client1.receive_transaction(trans4, miner1))
-    print ("This is the chain:",saltCoin.chain)
+
 
 if __name__ == '__main__':
     print('Running blockchain demo!')
