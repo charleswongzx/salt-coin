@@ -70,7 +70,7 @@ SPV class:
   
   2. Difficulty
     
-    In Bitcoin, diificulty changes over time, whereas SUTDCoin has fixed difficulty
+    In Bitcoin, difficulty changes over time, whereas SUTDCoin has fixed difficulty
     
   3. Number of Miners
   
