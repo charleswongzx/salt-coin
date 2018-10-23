@@ -43,7 +43,6 @@ class Blockchain:
             print ("Did you enter fork?")
             self.resolve()
             fork = False
-            print ("--=--=-=-=-=-=-Chain Status", self.chain)
             return True
         else:
             return False

@@ -102,7 +102,7 @@ def demo():
     client2=Client()
     saltCoin = Blockchain()
     miner1 = Miner(saltCoin)
-    miner_m = Miner(saltCoin)
+    miner2 = Miner(saltCoin)
 
     # GENERATING LIST OF SIGNED TRANSACTIONS
     # trans1 is not meant to go through, based on the algo, both clients start with zero in their wallet
@@ -117,20 +117,23 @@ def demo():
 
     saltCoin.pendingTransaction.append(trans1)
     miner1.mine(saltCoin.pendingTransaction)
+    miner2.update()
     miner1.mine(saltCoin.pendingTransaction)
+    miner2.update()
     saltCoin.pendingTransaction.append(trans2)
-    
 
-    miner1.selfish_mine(saltCoin.pendingTransaction)
+    miner2.selfish_mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans3)
     saltCoin.pendingTransaction.append(trans4)
 
     miner1.mine(saltCoin.pendingTransaction)
+    miner2.update()
 
-    miner1.selfish_mine(saltCoin.pendingTransaction)
+    miner2.selfish_mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans5)   
 
     miner1.mine(saltCoin.pendingTransaction)
+    miner2.update()
     
     # Printing Chain and Block Header, Hash and Transactions
     print ("\nSalt Coin Chain")
@@ -142,18 +145,20 @@ def demo():
         print (block[0].hash)
         i+=1
 
-    print ("\nBalance Ledger:")
+    print ("\nBalance Ledger for miner 1:")
     for key in miner1.record_ledger:
         print (key, miner1.record_ledger[key])
+
+    print ("\nBalance Ledger for miner 2:")
+    for key in miner2.record_ledger:
+        print (key, miner2.record_ledger[key])
     
     # Printing of actual address-balance ledger this is for verification purposes, cos we can't really read the address key
     print("\nBalance(miner-address)", miner1.record_ledger[miner1.public_key.to_string().hex()])
     print("Balance(address1)", miner1.record_ledger[client1.public_key.to_string().hex()])
     print("Balance(address2)", miner1.record_ledger[client2.public_key.to_string().hex()])
 
-    # Test for SPV client receive transaction function
-    # return True if transaction is in chain
-    print(client1.receive_transaction(trans5, miner1))
+
 
 
 if __name__ == '__main__':

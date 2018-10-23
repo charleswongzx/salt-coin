@@ -13,7 +13,7 @@ class Block(object):
         #print (self.generated_tree)
         self.previousHash = previousHash
         self.nonce = 0
-        self.difficulty=2
+        self.difficulty=4
         self.hash = self.calculateHash()
         self.header = json.dumps(OrderedDict({ 'previousHash' : self.previousHash,
                                                 'timestamp' : str(self.timestamp),

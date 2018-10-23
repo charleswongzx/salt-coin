@@ -28,7 +28,9 @@ class Miner:
 # 6. Miner gets rewarded
  
     def mine(self, pendingTransactions):
-            self.index=len(self.chain.chain) 
+            if self.index<len(self.chain.chain) :
+                self.record_ledger=self.getChainLedger()
+                self.index=len(self.chain.chain)
             status=False
             block_list=[]
             self.verifyTransaction(pendingTransactions)
@@ -53,7 +55,9 @@ class Miner:
     def selfish_mine(self, pendingTransactions):
             status=False
             if self.selfish_index ==1 :
-                self.selfish_index = copy.copy(self.index)
+                # self.selfish_index = copy.copy(self.index)
+                self.selfish_index = len(self.chain.chain)
+                self.record_ledger=self.getChainLedger()
             
             print ("\nSelfish Mining Begun")
             self.verifyTransaction(pendingTransactions)
@@ -79,7 +83,8 @@ class Miner:
                 else:
                     self.updateLedger(self.verifiedTransactions)
                 self.verifiedTransactions=[]
-
+    def update(self):
+        self.record_ledger=self.getChainLedger()
 # Miners should have the ability to send money to other miners
 # Implement: new_transaction function
     def send_transaction(self, address, amount):
