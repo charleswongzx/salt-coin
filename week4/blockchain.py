@@ -26,6 +26,7 @@ class Blockchain:
 
     def add (self, block, index, public_key):
         fork = False
+        
         if len(self.chain) > index:
             fork = True
         check = self.checkvalidblock(block,index,fork)
@@ -37,8 +38,11 @@ class Blockchain:
             reward = Transaction( self.master_public_key.to_string(), public_key , self.miningReward * len(block))
             reward.sign(reward.json_msg, self.master_private_key.to_string())
             self.pendingTransaction.append(reward)
+        print ("/nStatus of fork:/n",fork)
         if fork==True:
+            print ("Did you enter fork?")
             self.resolve()
+        
         
     def resolve(self):
         if len(self.chain[-1][0]) > len (self.chain[-1][1]):

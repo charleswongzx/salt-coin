@@ -31,7 +31,7 @@ class Miner:
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
-            print("BLOCK SUCESSFULLY MINED............")
+            print("BLOCK SUCESSFULLY MINED......s......")
             self.block_list.append(block)
           
             self.chain.add(self.block_list, self.index, self.public_key.to_string())
@@ -43,17 +43,18 @@ class Miner:
 
 
     def selfish_mine(self, pendingTransactions):
-           
+            print ("Selfish Mining Begun")
             self.verifyTransaction(pendingTransactions)
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
-            self.selfish_mine += 1
+            print ("Selfish Mining of a block successfull")
+            self.selfish_mine_count += 1
             print("BLOCK SUCESSFULLY MINED............")
             
             self.block_list.append(block)
-            if self.selfish_mine > 5:
-
+            if self.selfish_mine_count > 2:
+                print ("Adding list of blocks to blockchain")
                 self.chain.add(self.block_list, self.index, self.public_key.to_string())
                 self.block_list=[]
             self.index +=1

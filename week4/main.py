@@ -102,6 +102,7 @@ def demo():
     client2=Client()
     saltCoin = Blockchain()
     miner1 = Miner(saltCoin)
+    miner_m = Miner(saltCoin)
 
     # GENERATING LIST OF SIGNED TRANSACTIONS
     # trans1 is not meant to go through, based on the algo, both clients start with zero in their wallet
@@ -119,15 +120,22 @@ def demo():
     miner1.mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans2)
     saltCoin.pendingTransaction.append(trans3)
-    miner1.mine(saltCoin.pendingTransaction)
+
+    miner_m.selfish_mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans4)
+
+    miner_m.selfish_mine(saltCoin.pendingTransaction)
     saltCoin.pendingTransaction.append(trans5)
+
+
+    miner1.mine(saltCoin.pendingTransaction)
+
     miner1.mine(saltCoin.pendingTransaction)
     
     # Printing Chain and Block Header, Hash and Transactions
     print ("\nSalt Coin Chain")
     i=0
-    for block in miner1.chain.chain:
+    for block in saltCoin.chain:
         print ("\nBlock ", i, "Header: ")
         print (block[0].header)
         print ("Block ", i, "Hash: ")
