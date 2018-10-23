@@ -28,48 +28,57 @@ class Miner:
 # 6. Miner gets rewarded
  
     def mine(self, pendingTransactions):
-           
+            self.index=len(self.chain.chain) 
+            status=False
+            block_list=[]
             self.verifyTransaction(pendingTransactions)
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
             print("BLOCK SUCESSFULLY MINED......s......")
-            self.block_list.append(block)
+            block_list.append(block)
           
-            self.chain.add(self.block_list, self.index, self.public_key.to_string())
-            self.block_list=[]
+            status=self.chain.add(block_list, self.index, self.public_key.to_string())
+            
             self.index +=1
-            print ("-LOLOL--------------Selfish index:",self.index)
+   
             #update record_ledger
-            self.updateLedger(self.verifiedTransactions)
+            if status:
+                self.record_ledger=self.getChainLedger()
+            else:
+                self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]
 
 
     def selfish_mine(self, pendingTransactions):
+            status=False
+            if self.selfish_index ==1 :
+                self.selfish_index = copy.copy(self.index)
             
-                # self.selfish_index = copy.copy(self.index)
-            
-            print ("Selfish Mining Begun")
-            print ("-Heyyy--------------Selfish index:",self.index)
-            self.index
+            print ("\nSelfish Mining Begun")
             self.verifyTransaction(pendingTransactions)
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
             print ("Selfish Mining of a block successfull")
             self.selfish_mine_count += 1
-            print("BLOCK SUCESSFULLY MINED............")
+            print("selfish BLOCK SUCESSFULLY MINED............")
             
             self.block_list.append(block)
-            if self.selfish_mine_count > 1:
-                print ("Adding list of blocks to blockchain")
-                print ("---------------Selfish index:",self.selfish_index)
-                self.chain.add(self.block_list, self.selfish_index, self.public_key.to_string())
-                self.block_list=[]
-                self.selfish_index +=1
-            #update record_ledger
             self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]
+            if self.selfish_mine_count > 1:
+                print ("Adding list of blocks to blockchain")
+               
+                status = self.chain.add(self.block_list, self.selfish_index, self.public_key.to_string())
+                self.block_list=[]
+                self.selfish_index +=1
+                if status:
+                    self.record_ledger=self.getChainLedger()
+            #update record_ledger
+                else:
+                    self.updateLedger(self.verifiedTransactions)
+                self.verifiedTransactions=[]
 
 # Miners should have the ability to send money to other miners
 # Implement: new_transaction function

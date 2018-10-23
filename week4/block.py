@@ -111,7 +111,7 @@ class Block(object):
                                                 'timestamp' : str(self.timestamp),
                                                 'nonce' : str(self.nonce),
                                                 'merkle_root' : str(self.merkle_root)}),sort_keys=True)
-        print("BLOCK MINED:", self.hash)
+        print("\nBLOCK MINED:", self.hash)
 
 
 

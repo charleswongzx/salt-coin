@@ -32,6 +32,8 @@ class Client:
         hash_transaction = hashlib.sha256(transaction.json_msg.encode('utf-8')).hexdigest()
         path = miner.getpath(hash_transaction)
         # compute root with path and header
+        if path==None:
+            return False
         for j in path:
             if j[0] == 0:
                 combined_str = str(j[1]) + str(hash_transaction)

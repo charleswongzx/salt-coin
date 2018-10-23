@@ -22,6 +22,7 @@ class Blockchain:
         return [Block("01/09/2018", pendingtransaction, "0")]
 
     def getLatestBlock(self):
+       
         return self.chain[len(self.chain)-1][0]
 
     def add (self, block, index, public_key):
@@ -41,6 +42,11 @@ class Blockchain:
         if fork==True:
             print ("Did you enter fork?")
             self.resolve()
+            fork = False
+            print ("--=--=-=-=-=-=-Chain Status", self.chain)
+            return True
+        else:
+            return False
         
         
     def resolve(self):
@@ -49,27 +55,30 @@ class Blockchain:
         if len(self.chain[-1][0]) > len (self.chain[-1][1]):
             new_chain=self.chain[:-1]
             for i in self.chain[-1][0]:
-                new_chain.append(i)
+                new_chain.append([i])
             self.chain = new_chain[:]
 
         if len(self.chain[-1][0]) < len (self.chain[-1][1]):
             new_chain=self.chain[:-1]
             for i in self.chain[-1][1]:
-                new_chain.append(i)
+                new_chain.append([i])
             self.chain = new_chain[:]
 
+
     def checkvalidblock(self,block_array,block_index,fork):
-        print ("********",fork)
+    
         firstBlock = block_array[0]
         previousBlock = self.chain[block_index-1][0]
-        print (firstBlock.previousHash,previousBlock.hash)
+        print ("")
+        print ("headersssss")
+        print (previousBlock.header)
+        print (firstBlock.header,firstBlock.hash,previousBlock.hash)
         if firstBlock.previousHash == previousBlock.hash:
             if fork:
                 last_block=self.chain.pop()
                 forked_block = [last_block,block_array]
                 self.chain.append(forked_block)
-                print ("++++++++++++",self.chain)
-                print ("++++++++++++",forked_block)
+         
             else:
                 self.chain.append(block_array)
 
