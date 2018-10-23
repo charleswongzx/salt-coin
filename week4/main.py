@@ -100,7 +100,6 @@ def demo():
     # Test Code for Miner Class with Key Pairs & signing of transactions
     client1=Client()
     client2=Client()
-    pendingTransaction=[]
     saltCoin = Blockchain()
 
     miner1 = Miner(saltCoin)
@@ -117,15 +116,15 @@ def demo():
     trans4 = client1.send_transaction(client2.public_key.to_string(),5)
     trans5 = client2.send_transaction(client1.public_key.to_string(),10)
 
-    pendingTransaction.append(trans1)
-    pendingTransaction=[miner1.mine(pendingTransaction)]
-    pendingTransaction=[miner1.mine(pendingTransaction)]
-    pendingTransaction.append(trans2)
-    pendingTransaction.append(trans3)
-    pendingTransaction=[miner1.mine(pendingTransaction)]
-    pendingTransaction.append(trans4)
-    pendingTransaction.append(trans5)
-    pendingTransaction=[miner1.mine(pendingTransaction)]
+    saltCoin.pendingTransaction.append(trans1)
+    miner1.mine(saltCoin.pendingTransaction)
+    miner1.mine(saltCoin.pendingTransaction)
+    saltCoin.pendingTransaction.append(trans2)
+    saltCoin.pendingTransaction.append(trans3)
+    miner1.mine(saltCoin.pendingTransaction)
+    saltCoin.pendingTransaction.append(trans4)
+    saltCoin.pendingTransaction.append(trans5)
+    miner1.mine(saltCoin.pendingTransaction)
     
     # Printing Chain and Block Header, Hash and Transactions
     print ("\nSalt Coin Chain")

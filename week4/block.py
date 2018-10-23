@@ -7,6 +7,7 @@ from collections import OrderedDict
 class Block(object):
     def __init__(self, timestamp, transactions, previousHash=''):
         self.timestamp = timestamp
+        self.transactions = transactions
         self.merkle_root, self.generated_tree = self.build_tree(transactions)
         #print (self.merkle_root)
         #print (self.generated_tree)

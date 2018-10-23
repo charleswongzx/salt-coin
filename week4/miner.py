@@ -7,16 +7,13 @@ import ecdsa
 
 class Miner:
     def __init__(self, chain):
-        # the 4 lines below is temporary till network is implemented
-        self.master_private_key = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p)
-        self.master_public_key = self.master_private_key.get_verifying_key()
         self.chain = chain
         self.private_key = ecdsa.SigningKey.generate(curve=ecdsa.NIST192p)
         self.public_key = self.private_key.get_verifying_key()
-        #self.record_ledger = self.getChainLedger()
-        self.record_ledger = { self.master_public_key.to_string().hex() : 10000 }
+        self.record_ledger = self.getChainLedger()
         self.verifiedTransactions=[]
-        self.chain_check=False      
+        self.chain_check=False
+        self.index=len(chain)      
 
 # Mine class (Steps):
 # 1. Check if chain is valid & Verify pool of pending Transactions
@@ -27,20 +24,18 @@ class Miner:
 # 6. Miner gets rewarded
  
     def mine(self, pendingTransactions):
+            block_list=[]
             self.verifyTransaction(pendingTransactions)
             block = Block (time.time() , self.verifiedTransactions , self.chain.getLatestBlock().hash)
             #Proof-Of-Work
             block.mineBlock()
             print("BLOCK SUCESSFULLY MINED............")
-            self.chain.chain.append(block)
+            block_list.append(block)
+            self.chain.add(block_list, self.index, self.public_key.to_string())
+            self.index +=1
             #update record_ledger
             self.updateLedger(self.verifiedTransactions)
             self.verifiedTransactions=[]
-            master_public = self.master_public_key
-
-            reward = Transaction( master_public.to_string(), self.public_key.to_string() , 100)
-            reward.sign(reward.json_msg, self.master_private_key.to_string())
-            return reward
 
 # Miners should have the ability to send money to other miners
 # Implement: new_transaction function
