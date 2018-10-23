@@ -79,7 +79,7 @@ class Miner:
 # if it exist, add or subtract balance 
 # if it does not exist create new key with value of 0
     def getChainLedger(self):
-        for block in self.chain:
+        for block in self.chain.chain:
             for trans in block.transactions:
             	if trans.sender_public_key in self.record_ledger:
             		self.record_ledger[trans.sender_public_key] -= trans.amount
