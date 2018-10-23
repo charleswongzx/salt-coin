@@ -30,28 +30,29 @@ Transaction class:
   - to_json: Converts to a json message
 
 Block class:
-  - mineBlock:
-  - calculateHash:
-  - proof_tree:
-  - build_tree:
+  - mineBlock: Proof of Work
+  - calculateHash: Calculate a block's hash  
+  - proof_tree: Returns a merkle path for a specified transaction, for proving in SPVclient
+  - build_tree: Builds merkle tree from transactions.
 
 Blockchain class:
-  - createGenesisBlock:
-  - getLatestBlock:
-  - add:
-  - resolve:
-  - checkvalidblock:
+  - createGenesisBlock: Creates a Genesis block
+  - getLatestBlock: Gets the most recent block from the blockchain
+  - checkvalidblock: Check the hash of the most recent block in chain is the same as the mined block's previous hash. Based on fork status the block will be added to create a fork in the chain
+  - add: Checks if there is a fork in the chain and resolves it. After validation, it adds the block into the chain and rewards the miner
+  - resolve: When there is a fork, resolve is called to resolve the chain by selecting the longest chain.
+
 
 Miner class:
   - mine: Function to mine which mines the block and and updates the ledger and pushes changed to the chain
   - selfish_mine: Function to selfish mine which mines the block while not broadcasting the changes to the chain and only broadcasting the changes after mining a block first
-  - update: Update function is suppose to simulate a broadcast function in a network.
+  - update: Update function is suppose to simulate a broadcast function in a network. As they was no network we simulated the network broadcast functionality by calling it after a successful block mine.
   - send_transaction: Miners should have the ability to send money to other miners or clients
-  - verifyTransaction:
-  - updateLedger: Verify Pending Transactions and add into list of verifiedTransactions
-  - getChainLedger:
-  - chainvalidation:
-  - getpath:
+  - verifyTransaction: Verify Pending Transactions and add into list of verifiedTransactions
+  - updateLedger: Updates address-balance ledger after sucessfuly mining block    
+  - getChainLedger: When a new miner is added or a resolve happens on the chain. It calculates the record ledger of the chain and check record ledger dictionary if key of sender & receiver public key exist
+  - chainvalidation: Validation of Chain's Hash, Checks every time we mine a block
+  - getpath: Returns a merkle path for a specified transaction
 
 
 SPV class:

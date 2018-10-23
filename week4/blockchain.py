@@ -14,15 +14,13 @@ class Blockchain:
         self.pendingTransaction=[]
         self.miningReward=100
         
-
+    #
     def createGenesisBlock(self):
         trans1 = Transaction(self.genesis_public_key.to_string(), self.master_public_key.to_string(),100000)
         pendingtransaction=[trans1]
-
         return [Block("01/09/2018", pendingtransaction, "0")]
 
     def getLatestBlock(self):
-       
         return self.chain[len(self.chain)-1][0]
 
     def add (self, block, index, public_key):
@@ -61,9 +59,8 @@ class Blockchain:
                 new_chain.append([i])
             self.chain = new_chain[:]
 
-
+    # 
     def checkvalidblock(self,block_array,block_index,fork):
-    
         firstBlock = block_array[0]
         previousBlock = self.chain[block_index-1][0]
         if firstBlock.previousHash == previousBlock.hash:
